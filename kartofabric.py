@@ -185,6 +185,9 @@ def installopentopomap():
 		with cd("/home/karto/"):
 			run("rm -Rf OpenTopoMap")
 			run("git clone https://github.com/der-stefan/OpenTopoMap/")
+			run(" ln -s /home/karto/data/ /home/karto/OpenTopoMap/mapnik/data")
+
+
 def loadinitialOSMdata():
 	with settings(user="karto"):
 		run("mkdir -p /home/karto/data/update")
@@ -215,6 +218,14 @@ def processlowzoom():
 def postgresqlsize():
 	with settings(user="postgres"):
 		run('''psql -d gis -c "SELECT pg_database.datname, pg_size_pretty(pg_database_size(pg_database.datname)) AS size FROM pg_database;"''')
+
+def waterpolygons():
+	with settings(user="karto"):
+		run("rm -Rf /home/karto/data/water-polygons*")
+		put("water-polygons-split-3857.zip","/home/karto/data/water-polygons-split-3857.zip")
+		put("water-polygons-generalized-3857.zip","/home/karto/data/water-polygons-generalized-3857.zip")
+		with cd("/home/karto/data"):
+			run("unzip water-polygons-split-3857.zip && unzip water-polygons-generalized-3857.zip")
 
 def purgeOSMdataAndReload():
 	with settings(user="karto"):

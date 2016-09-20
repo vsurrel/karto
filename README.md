@@ -41,3 +41,4 @@ And less frequently, if required :
 
 - SSH public keys are hard-coded. You must replace with your SSH keys before running the script.
 - OSM region is hard-coded. Currently with French region "Rhone-Alpes".
+- Add http://data.openstreetmapdata.com/water-polygons-split-3857.zip and http://data.openstreetmapdata.com/water-polygons-generalized-3857.zip
