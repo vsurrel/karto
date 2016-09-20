@@ -127,10 +127,11 @@ def compiletirex():
 			with settings(user="root"):
 				run("rm -Rf /etc/tirex && rm -Rf /var/lib/tirex/tiles/* && dpkg -i --force-confmiss tirex-core*.deb tirex-backend-mapnik*.deb")
 	with settings(user="root"):
-		files.sed("/etc/tirex/renderer/mapnik.conf", "#?\s*plugindir.*", "plugindir=/usr/lib/mapnik/3.0/input")
-		files.sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir=.*", "fontdir=/usr/share/fonts/")
-		files.sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir_recurse.*", "fontdir_recurse=1")
-		files.put("tirex-mapnik.conf","/etc/tirex/renderer/mapnik/otm.conf")
+		sed("/etc/tirex/renderer/mapnik.conf", "#?\s*plugindir.*", "plugindir=/usr/lib/mapnik/3.0/input")
+		sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir=.*", "fontdir=/usr/share/fonts/")
+		sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir_recurse.*", "fontdir_recurse=1")
+		put("tirex-mapnik.conf","/etc/tirex/renderer/mapnik/otm.conf")
+		run("mkdir -p /var/lib/tirex/tiles/otm && chown tirex:tirex /var/lib/tirex/tiles/otm/")
 
 def installosmosis():
 	with settings(user="karto"):
@@ -214,6 +215,7 @@ def processlowzoom():
 		run('''psql -d lowzoom -c "DROP TABLE IF EXISTS water;DROP TABLE IF EXISTS landuse;DROP TABLE IF EXISTS roads;DROP TABLE IF EXISTS borders;DROP TABLE IF EXISTS railways;DROP TABLE IF EXISTS cities;"''')
 		put("lowzoom.sh")
 		run('chmod +x lowzoom.sh && ./lowzoom.sh')
+		run('''psql -d lowzoom -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO tirex"''')
 
 def postgresqlsize():
 	with settings(user="postgres"):
