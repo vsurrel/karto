@@ -2,7 +2,7 @@ karto
 ===========
 karto is an automation script using [Fabric](http://www.fabfile.org/) to setup an OpenTopoMap server with only one command.
 
-Current status is following [OpenTopoMap author's README](https://github.com/der-stefan/OpenTopoMap/blob/master/mapnik/HOWTO_Server_16.04). It takes currently 30 minutes (depending on your internet connection and computer) to follow all this README and load french "Rhone-Alpes" region (see Known Issues below) data.
+Current status is following [OpenTopoMap author's README](https://github.com/der-stefan/OpenTopoMap/blob/master/mapnik/HOWTO_Ubuntu_16.04). It takes currently 30 minutes (depending on your internet connection and computer) to follow all this README and load french "Rhone-Alpes" region (see Known Issues below) data.
 
 ### Usage (Linux and local LXC containers)
 

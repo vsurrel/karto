@@ -182,20 +182,21 @@ def loadinitialOSMdata():
 			run("wget http://download.geofabrik.de/europe/france/rhone-alpes-latest.osm.pbf")
 		with cd("/home/karto/data/update/"):
 			run("wget http://download.geofabrik.de/europe/france/rhone-alpes-updates/state.txt")
-		run("osm2pgsql --slim -d gis -C 12000 --number-processes 10 --flat-nodes /tmp/gis-flat-nodes.bin --style ~/OpenTopoMap/mapnik/osm2pgsql/opentopomap.style ~/data/rhone-alpes-latest.osm.pbf")
+		run("osm2pgsql --slim -d gis -C 12000 --number-processes 10 --flat-nodes /home/karto/gis-flat-nodes.bin --style ~/OpenTopoMap/mapnik/osm2pgsql/opentopomap.style ~/data/rhone-alpes-latest.osm.pbf")
 		run("osmosis --rrii workingDirectory=~/data/update")
 		files.sed("/home/karto/data/update/configuration.txt", "#?\s*baseUrl.*", "baseUrl=http://download.geofabrik.de/europe/france/rhone-alpes-updates/")
+		files.sed("/home/karto/data/update/configuration.txt", "#?\s*maxInterval.*", "maxInterval=0")
 
 def updateOSMdata():
 	with settings(user="karto"):
 		run("osmosis --rri workingDirectory=~/data/update --simplify-change --write-xml-change ~/data/update/changes.osc.gz")
-		run("osm2pgsql --append --slim -d gis  -C 12000 --number-processes 10 --flat-nodes /tmp/gis-flat-nodes.bin --style ~/OpenTopoMap/mapnik/osm2pgsql/opentopomap.style ~/data/update/changes.osc.gz")
+		run("osm2pgsql --append --slim -d gis  -C 12000 --number-processes 10 --flat-nodes /home/karto/gis-flat-nodes.bin --style ~/OpenTopoMap/mapnik/osm2pgsql/opentopomap.style ~/data/update/changes.osc.gz")
 		run("rm ~/data/update/changes.osc.gz")
 
 def purgeOSMdataAndReload():
 	with settings(user="karto"):
 		run("rm -Rf /home/karto/data")
-		run("rm -Rf /tmp/gis-flat-nodes.bin")
+		run("rm -Rf /home/karto/gis-flat-nodes.bin")
 	postgresdropdb()
 	postgresinitdb()
 	loadinitialOSMdata()
