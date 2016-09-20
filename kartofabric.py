@@ -127,9 +127,9 @@ def compiletirex():
 			with settings(user="root"):
 				run("rm -Rf /etc/tirex && rm -Rf /var/lib/tirex/tiles/* && dpkg -i --force-confmiss tirex-core*.deb tirex-backend-mapnik*.deb")
 	with settings(user="root"):
-		sed("/etc/tirex/renderer/mapnik.conf", "#?\s*plugindir.*", "plugindir=/usr/lib/mapnik/3.0/input")
-		sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir=.*", "fontdir=/usr/share/fonts/")
-		sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir_recurse.*", "fontdir_recurse=1")
+		files.sed("/etc/tirex/renderer/mapnik.conf", "#?\s*plugindir.*", "plugindir=/usr/lib/mapnik/3.0/input")
+		files.sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir=.*", "fontdir=/usr/share/fonts/")
+		files.sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir_recurse.*", "fontdir_recurse=1")
 		put("tirex-mapnik.conf","/etc/tirex/renderer/mapnik/otm.conf")
 		run("mkdir -p /var/lib/tirex/tiles/otm && chown tirex:tirex /var/lib/tirex/tiles/otm/")
 
@@ -192,16 +192,17 @@ def installopentopomap():
 def loadinitialOSMdata():
 	with settings(user="karto"):
 		run("mkdir -p /home/karto/data/update")
-		#put("rhone-alpes-latest.osm.pbf","/home/karto/data/rhone-alpes-latest.osm.pbf")
-		#put("state.txt","/home/karto/data/update/state.txt")
-		with cd("/home/karto/data/"):
-			run("wget http://download.geofabrik.de/europe/france/rhone-alpes-latest.osm.pbf")
-		with cd("/home/karto/data/update/"):
-			run("wget http://download.geofabrik.de/europe/france/rhone-alpes-updates/state.txt")
+		put("rhone-alpes-latest.osm.pbf","/home/karto/data/rhone-alpes-latest.osm.pbf")
+		put("state.txt","/home/karto/data/update/state.txt")
+		#with cd("/home/karto/data/"):
+		#	run("wget http://download.geofabrik.de/europe/france/rhone-alpes-latest.osm.pbf")
+		#with cd("/home/karto/data/update/"):
+		#	run("wget http://download.geofabrik.de/europe/france/rhone-alpes-updates/state.txt")
 		run("osm2pgsql --slim -d gis -C 12000 --number-processes 10 --flat-nodes /home/karto/gis-flat-nodes.bin --style ~/OpenTopoMap/mapnik/osm2pgsql/opentopomap.style ~/data/rhone-alpes-latest.osm.pbf")
 		run("osmosis --rrii workingDirectory=~/data/update")
 		files.sed("/home/karto/data/update/configuration.txt", "#?\s*baseUrl.*", "baseUrl=http://download.geofabrik.de/europe/france/rhone-alpes-updates/")
 		files.sed("/home/karto/data/update/configuration.txt", "#?\s*maxInterval.*", "maxInterval=0")
+		processlowzoom()
 
 def updateOSMdata():
 	with settings(user="karto"):
@@ -252,5 +253,6 @@ def setupall():
 	installopentopomap()
 	installosmosis()
 	loadinitialOSMdata()
+	waterpolygons()
 	updateOSMdata()
 	postgresqlsize()
