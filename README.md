@@ -18,6 +18,14 @@ Assuming you can SSH to a stock Ubuntu Xenial server, you can setup it with `fab
 
 It is possible to refresh application or data with one command. Just add parameter `-h SERVER_IP` if you don't use local LXC.
 
+`fab -f kartofabric.py updateOSMdata` : update OSM data by downloading minutly diff (will be automated soon in container)
+
+`fab -f kartofabric.py purgeOSMdataAndReload` : erase all postgres OSM data and start a fresh new install (like after initial setup)
+
+`fab -f kartofabric.py processlowzoom`: compute lowzoom data (monthly for example)
+
+And less frequently, if required :
+
 `fab -f kartofabric.py compiletirex` : Download, build and deploy fresh Tirex
 
 `fab -f kartofabric.py installosmosis` : Download and deploy fresh Osmosis
@@ -26,9 +34,7 @@ It is possible to refresh application or data with one command. Just add paramet
 
 `fab -f kartofabric.py compileosm2pgsql` : Download, build and deploy fresh Osm2Pgsql
 
-`fab -f kartofabric.py updateOSMdata` : update OSM data by downloading minutly diff (will be automated soon in container)
 
-`fab -f kartofabric.py purgeOSMdataAndReload` : erase all postgres OSM data and start a fresh new install (like after initial setup)
 
 
 ### Known issue

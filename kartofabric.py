@@ -100,11 +100,17 @@ def postgresinitdb():
 	with settings(user="postgres"):
 		run("createuser --createdb karto")
 		run("createdb gis")
+		run("createdb lowzoom")
 		run("psql -d gis -c 'CREATE EXTENSION postgis;'")
+		run("psql -d gis -c 'CREATE EXTENSION dblink;'")
+		run("psql -d lowzoom -c 'CREATE EXTENSION postgis;'")
+		run("psql -d lowzoom -c 'CREATE EXTENSION dblink;'")
+
 
 def postgresdropdb():
 	with settings(user="postgres"):
 		run("psql -d template1 -c 'DROP DATABASE IF EXISTS gis'")
+		run("psql -d template1 -c 'DROP DATABASE IF EXISTS lowzoom'")
 		run("dropuser karto")
 
 
@@ -192,6 +198,15 @@ def updateOSMdata():
 		run("osmosis --rri workingDirectory=~/data/update --simplify-change --write-xml-change ~/data/update/changes.osc.gz")
 		run("osm2pgsql --append --slim -d gis  -C 12000 --number-processes 10 --flat-nodes /home/karto/gis-flat-nodes.bin --style ~/OpenTopoMap/mapnik/osm2pgsql/opentopomap.style ~/data/update/changes.osc.gz")
 		run("rm ~/data/update/changes.osc.gz")
+
+def processlowzoom():
+	with settings(user="postgres"):
+		run('''psql -d gis -c "DROP VIEW IF EXISTS lowzoom_water;DROP VIEW IF EXISTS lowzoom_landuse;DROP VIEW IF EXISTS lowzoom_roads;DROP VIEW IF EXISTS lowzoom_borders;DROP VIEW IF EXISTS lowzoom_railways;DROP VIEW IF EXISTS lowzoom_cities;"''')
+		run('''psql -d lowzoom -c "DROP TABLE IF EXISTS water;DROP TABLE IF EXISTS landuse;DROP TABLE IF EXISTS roads;DROP TABLE IF EXISTS borders;DROP TABLE IF EXISTS railways;DROP TABLE IF EXISTS cities;"''')
+		files.put("lowzoom.sh")
+		run('chmod +x lowzoom.sh && ./lowzoom.sh')
+
+	
 
 def purgeOSMdataAndReload():
 	with settings(user="karto"):
