@@ -256,4 +256,5 @@ def setupall():
 	loadinitialOSMdata()
 	waterpolygons()
 	updateOSMdata()
+	processlowzoom()
 	postgresqlsize()
