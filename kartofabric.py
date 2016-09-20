@@ -22,6 +22,7 @@ PACKAGES = [
 	"libmapnik-dev",
 	"mapnik-utils",
 	"python-mapnik",
+	"unifont",
 	# Requirements Tyrex source
 	"devscripts",
 	"libjson-perl",
@@ -124,7 +125,12 @@ def compiletirex():
 			run("make deb")
 		with cd("/home/karto/src/"):
 			with settings(user="root"):
-				run("dpkg -i tirex-core*.deb tirex-backend-mapnik*.deb")
+				run("rm -Rf /etc/tirex && rm -Rf /var/lib/tirex/tiles/* && dpkg -i --force-confmiss tirex-core*.deb tirex-backend-mapnik*.deb")
+	with settings(user="root"):
+		files.sed("/etc/tirex/renderer/mapnik.conf", "#?\s*plugindir.*", "plugindir=/usr/lib/mapnik/3.0/input")
+		files.sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir=.*", "fontdir=/usr/share/fonts/")
+		files.sed("/etc/tirex/renderer/mapnik.conf", "#?\s*fontdir_recurse.*", "fontdir_recurse=1")
+		files.put("tirex-mapnik.conf","/etc/tirex/renderer/mapnik/otm.conf")
 
 def installosmosis():
 	with settings(user="karto"):
@@ -203,10 +209,12 @@ def processlowzoom():
 	with settings(user="postgres"):
 		run('''psql -d gis -c "DROP VIEW IF EXISTS lowzoom_water;DROP VIEW IF EXISTS lowzoom_landuse;DROP VIEW IF EXISTS lowzoom_roads;DROP VIEW IF EXISTS lowzoom_borders;DROP VIEW IF EXISTS lowzoom_railways;DROP VIEW IF EXISTS lowzoom_cities;"''')
 		run('''psql -d lowzoom -c "DROP TABLE IF EXISTS water;DROP TABLE IF EXISTS landuse;DROP TABLE IF EXISTS roads;DROP TABLE IF EXISTS borders;DROP TABLE IF EXISTS railways;DROP TABLE IF EXISTS cities;"''')
-		files.put("lowzoom.sh")
+		put("lowzoom.sh")
 		run('chmod +x lowzoom.sh && ./lowzoom.sh')
 
-	
+def postgresqlsize():
+	with settings(user="postgres"):
+		run('''psql -d gis -c "SELECT pg_database.datname, pg_size_pretty(pg_database_size(pg_database.datname)) AS size FROM pg_database;"''')
 
 def purgeOSMdataAndReload():
 	with settings(user="karto"):
@@ -216,6 +224,8 @@ def purgeOSMdataAndReload():
 	postgresinitdb()
 	loadinitialOSMdata()
 	updateOSMdata()
+	postgresqlsize()
+
 
 def setupall():
 	sshd()
@@ -230,3 +240,4 @@ def setupall():
 	installosmosis()
 	loadinitialOSMdata()
 	updateOSMdata()
+	postgresqlsize()
