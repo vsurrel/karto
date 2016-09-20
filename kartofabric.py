@@ -100,6 +100,7 @@ def configpostgres():
 def postgresinitdb():
 	with settings(user="postgres"):
 		run("createuser --createdb karto")
+		run("createuser tirex")
 		run("createdb gis")
 		run("createdb lowzoom")
 		run("psql -d gis -c 'CREATE EXTENSION postgis;'")
